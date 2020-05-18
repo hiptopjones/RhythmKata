@@ -165,12 +165,14 @@ namespace Assets.Data
                 denominator = (int)Math.Pow(2, Convert.ToInt32(match.Groups["DenominatorExponent"].Value));
             }
 
+            Debug.Log($"Time signature change: {position} --> {timeSignatureValue} --> {numerator}/{denominator}");
             TimeSignatureChanges.Add(new TimeSignature(position, numerator, denominator));
         }
 
         private void ParseTempo(int position, string tempoValue)
         {
             double beatsPerMinute = Convert.ToInt32(tempoValue) / 1000d;
+            Debug.Log($"Tempo change: {position} --> {tempoValue} --> {beatsPerMinute}");
 
             TempoChanges.Add(new Tempo(position, beatsPerMinute));
         }

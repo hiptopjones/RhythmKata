@@ -12,9 +12,6 @@ public class NoteSpawner : MonoBehaviour
     [SerializeField]
     private GameObject spawnPrefab;
 
-    [SerializeField]
-    private float spawnSpeed = 20;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -29,11 +26,12 @@ public class NoteSpawner : MonoBehaviour
 
         Vector3 spawnPosition = new Vector3(xPosition, yPosition, zPosition);
         GameObject noteGameObject = Instantiate(spawnPrefab, spawnPosition, transform.rotation, spawnParent.transform);
+        noteGameObject.name = $"Note {note.PositionInSteps} {note.NoteType}";
 
         NoteController controller = noteGameObject.GetComponent<NoteController>();
         controller.positionInSteps = note.PositionInSteps;
-        controller.noteTimeInSeconds = (float)noteTimeInSeconds;
-        controller.startAudioTimeInSeconds = (float)startAudioTimeInSeconds;
+        controller.noteTimeInSeconds = noteTimeInSeconds;
+        controller.startAudioTimeInSeconds = startAudioTimeInSeconds;
         controller.noteType = note.NoteType;
     }
 
@@ -64,6 +62,10 @@ public class NoteSpawner : MonoBehaviour
             // Crash
             case 5:
                 return 6;
+
+            // Fake (marker)
+            case -1:
+                return -6;
 
             default:
                 throw new Exception($"Unknown note type: {noteType}");

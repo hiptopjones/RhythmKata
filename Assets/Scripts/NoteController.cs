@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class NoteController : MonoBehaviour
 {
-    public float speed;
-    public bool inTargetZone;
-    public float destroyDelayInSeconds = 2f;
+    [SerializeField]
+    private float speed;
+    [SerializeField]
+    private float destroyDelayInSeconds = 2f;
 
-    public float noteTimeInSeconds;
-    public float startAudioTimeInSeconds;
+    public double noteTimeInSeconds;
+    public double startAudioTimeInSeconds;
+
+    public bool inTargetZone;
 
     // Debug data
     public int noteType;

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace Assets.Data
 {
@@ -19,16 +20,10 @@ namespace Assets.Data
 
         public SongChart(int stepsPerBeat, List<TimeSignature> timeSignatureChanges, List<Tempo> tempoChanges, List<Section> sections, List<Note> notes)
         {
+            // TODO: Currently ignoring time signatures and sections
+
             StepsPerBeat = stepsPerBeat;
-
-            // TODO: Ignoring time signature changes for now -- assume everything is 4/4
-            //TimeSignatureChanges = timeSignatureChanges;
-
             TempoChanges = tempoChanges;
-
-            // TODO: Ignoring sections for now
-            //Sections = sections;
-
             Notes = notes;
         }
 
@@ -67,7 +62,7 @@ namespace Assets.Data
             {
                 if (currentTempo != null)
                 {
-                    if (nextTempo.PositionInSteps < positionInSteps)
+                    if (nextTempo.PositionInSteps > positionInSteps)
                     {
                         break;
                     }
@@ -84,12 +79,12 @@ namespace Assets.Data
 
         private double GetTimeFromPositionDelta(int startPosition, int endPosition, double beatsPerMinute, int stepsPerBeat)
         {
-            return (endPosition - startPosition) / stepsPerBeat * 60 / beatsPerMinute;
+            return (endPosition - startPosition) / (double)stepsPerBeat * 60d / beatsPerMinute;
         }
 
         private int GetPositionFromTimeDelta(double startTime, double endTime, double beatsPerMinute, int stepsPerBeat)
         {
-            return (int)Math.Round((endTime - startTime) * beatsPerMinute / 60 * stepsPerBeat);
+            return (int)Math.Round((endTime - startTime) * beatsPerMinute / 60d * (double)stepsPerBeat);
         }
     }
 }

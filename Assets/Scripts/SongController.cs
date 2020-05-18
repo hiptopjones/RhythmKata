@@ -55,13 +55,21 @@ public class SongController : MonoBehaviour
 
         Debug.Log($"Playback Time: {currentPlaybackTimeInSeconds} Spawn Time: {currentSpawnTimeInSeconds} Spawn Position: {currentSpawnPositionInSteps}");
 
-        while (notesQueue.Peek().PositionInSteps <= currentSpawnPositionInSteps)
+        while (notesQueue.Count > 0 && notesQueue.Peek().PositionInSteps <= currentSpawnPositionInSteps)
         {
             Note note = notesQueue.Dequeue();
             double noteTimeInSeconds = songChart.GetTimeFromPosition(note.PositionInSteps);
 
             Debug.Log($"Note Position: {note.PositionInSteps} Note Time: {noteTimeInSeconds}");
             noteSpawner.SpawnNote(note, noteTimeInSeconds, startAudioTimeInSeconds);
+        }
+
+        // Add fake notes on space bar hits to allow testing the tempo
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Note fakeNote = new Note(songChart.GetPositionFromTime(currentPlaybackTimeInSeconds), -1, 0);
+            double noteTimeInSeconds = songChart.GetTimeFromPosition(fakeNote.PositionInSteps);
+            noteSpawner.SpawnNote(fakeNote, noteTimeInSeconds, startAudioTimeInSeconds);
         }
     }
 

@@ -107,5 +107,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 20
+  destroyDelayInSeconds: 60
+  noteTimeInSeconds: 0
+  startAudioTimeInSeconds: 0
   inTargetZone: 0
-  destroyDelayInSeconds: 20
+  noteType: 0
+  positionInSteps: 0
