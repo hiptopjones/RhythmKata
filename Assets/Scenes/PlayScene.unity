@@ -1202,8 +1202,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startPlaybackDelayTimeInSeconds: 2
-  spawnAheadTimeInSeconds: 2
-  songChartFilePath: NewKidInSchool
+  spawnAheadTimeInSeconds: 5
+  calibrationOffsetTimeInSeconds: 1.20863309352518
+  songChartTextAsset: {fileID: 4900000, guid: 0ef015e1f8f1ea44db7cac3f1e109fb5, type: 3}
 --- !u!114 &1829541639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1219,7 +1220,6 @@ MonoBehaviour:
   spawnParent: {fileID: 926183442}
   spawnPrefab: {fileID: 7035538090219904220, guid: 7fb48b8978d10ce4689ad1106e49ec6e,
     type: 3}
-  spawnSpeed: 20
 --- !u!1 &2105923806
 GameObject:
   m_ObjectHideFlags: 0

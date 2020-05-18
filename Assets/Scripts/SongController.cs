@@ -13,6 +13,9 @@ public class SongController : MonoBehaviour
     private double spawnAheadTimeInSeconds = 5;
 
     [SerializeField]
+    private double calibrationOffsetTimeInSeconds = 0.58;
+
+    [SerializeField]
     private TextAsset songChartTextAsset;
 
     private NoteSpawner noteSpawner;
@@ -59,9 +62,10 @@ public class SongController : MonoBehaviour
         {
             Note note = notesQueue.Dequeue();
             double noteTimeInSeconds = songChart.GetTimeFromPosition(note.PositionInSteps);
+            double calibratedNoteTimeInSeconds = noteTimeInSeconds + calibrationOffsetTimeInSeconds;
 
-            Debug.Log($"Note Position: {note.PositionInSteps} Note Time: {noteTimeInSeconds}");
-            noteSpawner.SpawnNote(note, noteTimeInSeconds, startAudioTimeInSeconds);
+            Debug.Log($"Note Position: {note.PositionInSteps} Note Time: {noteTimeInSeconds} Calibrated Time: {calibratedNoteTimeInSeconds}");
+            noteSpawner.SpawnNote(note, calibratedNoteTimeInSeconds, startAudioTimeInSeconds);
         }
 
         // Add fake notes on space bar hits to allow testing the tempo
