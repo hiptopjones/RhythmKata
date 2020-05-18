@@ -1,0 +1,2 @@
+# RhythmKata
+Rocksmith for drums
