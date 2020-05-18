@@ -11,7 +11,7 @@ namespace Assets.Data
 {
     public class SongChartParser
     {
-        private string ChartFilePath { get; set; }
+        private string ChartFileText { get; set; }
 
         private int StepsPerBeat { get; set; }
         private List<Tempo> TempoChanges { get; set; } = new List<Tempo>();
@@ -19,21 +19,16 @@ namespace Assets.Data
         private List<Section> Sections { get; set; } = new List<Section>();
         private List<Note> Notes { get; set; } = new List<Note>();
 
-        public SongChartParser(string chartFilePath)
+        public SongChartParser(string chartFileText)
         {
-            if (string.IsNullOrEmpty(chartFilePath))
-            {
-                throw new Exception($"Null or empty value for chart file path");
-            }
-
-            ChartFilePath = chartFilePath;
+            ChartFileText = chartFileText;
         }
 
         public SongChart ParseChart()
         {
             ClearChartData();
 
-            string[] chartLines = File.ReadAllLines(ChartFilePath);
+            string[] chartLines = ChartFileText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             string sectionName = null;
             List<string> sectionDataLines = new List<string>();

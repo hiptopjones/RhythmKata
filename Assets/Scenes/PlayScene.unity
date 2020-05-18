@@ -1201,9 +1201,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48b2df99e9cdad641b43900a3cef37c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startDelayInSeconds: 2
+  startPlaybackDelayTimeInSeconds: 2
   spawnAheadTimeInSeconds: 2
-  songChartFilePath: C:\Users\hipto\Downloads\NewKidInSchool.chart
+  songChartFilePath: NewKidInSchool
 --- !u!114 &1829541639
 MonoBehaviour:
   m_ObjectHideFlags: 0

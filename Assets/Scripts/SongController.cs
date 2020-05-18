@@ -1,4 +1,5 @@
 ﻿using Assets.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +13,7 @@ public class SongController : MonoBehaviour
     private double spawnAheadTimeInSeconds = 5;
 
     [SerializeField]
-    private string songChartFilePath;
+    private TextAsset songChartTextAsset;
 
     private NoteSpawner noteSpawner;
     private AudioSource audioSource;
@@ -28,8 +29,12 @@ public class SongController : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         noteSpawner = GetComponent<NoteSpawner>();
 
-        SongChartParser parser = new SongChartParser(songChartFilePath);
+        SongChartParser parser = new SongChartParser(songChartTextAsset.text);
         songChart = parser.ParseChart();
+        if (songChart == null)
+        {
+            throw new Exception($"Unable to parse song chart");
+        }
 
         // Use a queue to consume notes as we spawn them
         notesQueue = new Queue<Note>(songChart.Notes);
