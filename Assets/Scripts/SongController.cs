@@ -48,7 +48,7 @@ public class SongController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log($"Time: {Time.time} Delta Time: {Time.deltaTime} DSP Time: {AudioSettings.dspTime}");
+        //Debug.Log($"Time: {Time.time} Delta Time: {Time.deltaTime} DSP Time: {AudioSettings.dspTime}");
 
         double currentAudioTimeInSeconds = AudioSettings.dspTime;
 
@@ -56,7 +56,7 @@ public class SongController : MonoBehaviour
         double currentSpawnTimeInSeconds = currentPlaybackTimeInSeconds + spawnAheadTimeInSeconds;
         int currentSpawnPositionInSteps = songChart.GetPositionFromTime(currentSpawnTimeInSeconds);
 
-        Debug.Log($"Playback Time: {currentPlaybackTimeInSeconds} Spawn Time: {currentSpawnTimeInSeconds} Spawn Position: {currentSpawnPositionInSteps}");
+        //Debug.Log($"Playback Time: {currentPlaybackTimeInSeconds} Spawn Time: {currentSpawnTimeInSeconds} Spawn Position: {currentSpawnPositionInSteps}");
 
         while (notesQueue.Count > 0 && notesQueue.Peek().PositionInSteps <= currentSpawnPositionInSteps)
         {
@@ -64,16 +64,20 @@ public class SongController : MonoBehaviour
             double noteTimeInSeconds = songChart.GetTimeFromPosition(note.PositionInSteps);
             double calibratedNoteTimeInSeconds = noteTimeInSeconds + calibrationOffsetTimeInSeconds;
 
-            Debug.Log($"Note Position: {note.PositionInSteps} Note Time: {noteTimeInSeconds} Calibrated Time: {calibratedNoteTimeInSeconds}");
+            //Debug.Log($"Note Position: {note.PositionInSteps} Note Time: {noteTimeInSeconds} Calibrated Time: {calibratedNoteTimeInSeconds}");
             noteSpawner.SpawnNote(note, calibratedNoteTimeInSeconds, startAudioTimeInSeconds);
         }
 
-        // Add fake notes on space bar hits to allow testing the tempo
-        if (Input.GetKeyDown(KeyCode.Space))
+        bool calibrationTest = false;
+        if (calibrationTest)
         {
-            Note fakeNote = new Note(songChart.GetPositionFromTime(currentPlaybackTimeInSeconds), -1, 0);
-            double noteTimeInSeconds = songChart.GetTimeFromPosition(fakeNote.PositionInSteps);
-            noteSpawner.SpawnNote(fakeNote, noteTimeInSeconds, startAudioTimeInSeconds);
+            // Add fake notes on space bar hits to allow testing the A/V calibration
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Note fakeNote = new Note(songChart.GetPositionFromTime(currentPlaybackTimeInSeconds), -1, 0);
+                double noteTimeInSeconds = songChart.GetTimeFromPosition(fakeNote.PositionInSteps);
+                noteSpawner.SpawnNote(fakeNote, noteTimeInSeconds, startAudioTimeInSeconds);
+            }
         }
     }
 

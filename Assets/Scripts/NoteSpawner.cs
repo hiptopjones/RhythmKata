@@ -26,6 +26,7 @@ public class NoteSpawner : MonoBehaviour
 
         Vector3 spawnPosition = new Vector3(xPosition, yPosition, zPosition);
         GameObject noteGameObject = Instantiate(spawnPrefab, spawnPosition, transform.rotation, spawnParent.transform);
+        noteGameObject.transform.Rotate(Vector3.back, 90);
         noteGameObject.name = $"Note {note.PositionInSteps} {note.NoteType}";
 
         NoteController controller = noteGameObject.GetComponent<NoteController>();
