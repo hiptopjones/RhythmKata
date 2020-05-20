@@ -1,32 +1,45 @@
-﻿using System.Collections;
+﻿using MidiJack;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class NoteController : MonoBehaviour
 {
     [SerializeField]
-    private float speed;
+    private float speed = 20;
+
     [SerializeField]
-    private float destroyDelayInSeconds = 2f;
+    private double destroyDelayInSeconds = 2;
 
     public double noteTimeInSeconds;
     public double startAudioTimeInSeconds;
 
-    public bool inTargetZone;
+    private ParticleSystem particleSystem;
+    private InputController inputController;
 
-    // Debug data
     public int noteType;
     public int positionInSteps;
+
+    public bool InTargetZone { get; private set; }
 
     // Start is called before the first frame update
     void Start()
     {
+        particleSystem = GetComponentInChildren<ParticleSystem>();
+        inputController = GameObject.FindGameObjectWithTag("InputManager").GetComponent<InputController>();
+
         UpdatePosition();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (InTargetZone)
+        {
+            CheckNoteHit();
+        }
+
         UpdatePosition();
     }
 
@@ -39,14 +52,32 @@ public class NoteController : MonoBehaviour
         transform.position = new Vector3((float)(-speed * offsetTimeInSeconds), transform.position.y, transform.position.z);
     }
 
-    public void OnTriggerEnter(Collider other)
+    public void OnTargetZoneEnter()
     {
-        inTargetZone = true;
+        InTargetZone = true;
+        CheckNoteHit();
     }
 
-    public void OnTriggerExit(Collider other)
+    public void OnTargetZoneExit()
     {
-        inTargetZone = false;
-        Destroy(gameObject, destroyDelayInSeconds);
+        InTargetZone = false;
+        Destroy(gameObject, (float)destroyDelayInSeconds);
+    }
+
+    private void CheckNoteHit()
+    {
+        if (inputController.IsInputCodeActive(noteType))
+        {
+            OnNoteHit();
+        }
+    }
+
+    public void OnNoteHit()
+    {
+        // Hide the note
+        GetComponent<MeshRenderer>().enabled = false;
+
+        // Play the explosion
+        particleSystem.Play();
     }
 }

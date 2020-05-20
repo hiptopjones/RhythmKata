@@ -16,13 +16,19 @@ public class SongController : MonoBehaviour
     private double calibrationOffsetTimeInSeconds = 0.58;
 
     [SerializeField]
+    private double hitThresholdInSeconds = 0.2;
+
+    [SerializeField]
+    private GameObject spawnParent;
+
+    [SerializeField]
     private TextAsset songChartTextAsset;
 
     private NoteSpawner noteSpawner;
     private AudioSource audioSource;
 
     private SongChart songChart;
-    private Queue<Note> notesQueue;
+    private Queue<Note> queuedNotes;
     private double initAudioTimeInSeconds;
     private double startAudioTimeInSeconds;
 
@@ -40,7 +46,7 @@ public class SongController : MonoBehaviour
         }
 
         // Use a queue to consume notes as we spawn them
-        notesQueue = new Queue<Note>(songChart.Notes);
+        queuedNotes = new Queue<Note>(songChart.Notes);
 
         StartSong();
     }
@@ -58,9 +64,10 @@ public class SongController : MonoBehaviour
 
         //Debug.Log($"Playback Time: {currentPlaybackTimeInSeconds} Spawn Time: {currentSpawnTimeInSeconds} Spawn Position: {currentSpawnPositionInSteps}");
 
-        while (notesQueue.Count > 0 && notesQueue.Peek().PositionInSteps <= currentSpawnPositionInSteps)
+        // Spawn any notes that have come into range
+        while (queuedNotes.Count > 0 && queuedNotes.Peek().PositionInSteps <= currentSpawnPositionInSteps)
         {
-            Note note = notesQueue.Dequeue();
+            Note note = queuedNotes.Dequeue();
             double noteTimeInSeconds = songChart.GetTimeFromPosition(note.PositionInSteps);
             double calibratedNoteTimeInSeconds = noteTimeInSeconds + calibrationOffsetTimeInSeconds;
 
@@ -77,6 +84,30 @@ public class SongController : MonoBehaviour
                 Note fakeNote = new Note(songChart.GetPositionFromTime(currentPlaybackTimeInSeconds), -1, 0);
                 double noteTimeInSeconds = songChart.GetTimeFromPosition(fakeNote.PositionInSteps);
                 noteSpawner.SpawnNote(fakeNote, noteTimeInSeconds, startAudioTimeInSeconds);
+            }
+        }
+        else
+        {
+            NoteController[] noteControllers = spawnParent.GetComponentsInChildren<NoteController>();
+            foreach (NoteController noteController in noteControllers)
+            {
+                double noteOffsetInSeconds = Math.Abs(currentPlaybackTimeInSeconds - noteController.noteTimeInSeconds);
+                if (noteOffsetInSeconds < hitThresholdInSeconds)
+                {
+                    // Inside the target zone, so notify the note if it was previously outside
+                    if (!noteController.InTargetZone)
+                    {
+                        noteController.OnTargetZoneEnter();
+                    }
+                }
+                else
+                {
+                    // Outside the target zone, so notify the note if it was previously inside
+                    if (noteController.InTargetZone)
+                    {
+                        noteController.OnTargetZoneExit();
+                    }
+                }
             }
         }
     }
