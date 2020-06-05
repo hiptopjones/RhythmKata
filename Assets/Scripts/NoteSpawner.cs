@@ -10,7 +10,19 @@ public class NoteSpawner : MonoBehaviour
     private GameObject spawnParent;
 
     [SerializeField]
-    private GameObject spawnPrefab;
+    private GameObject kickDrumPrefab;
+    [SerializeField]
+    private GameObject snareDrumPrefab;
+    [SerializeField]
+    private GameObject tomDrumPrefab;
+    [SerializeField]
+    private GameObject openHiHatPrefab;
+    [SerializeField]
+    private GameObject closedHiHatPrefab;
+    [SerializeField]
+    private GameObject rideCymbalPrefab;
+    [SerializeField]
+    private GameObject crashCymbalPrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -25,8 +37,8 @@ public class NoteSpawner : MonoBehaviour
         float zPosition = transform.position.z;
 
         Vector3 spawnPosition = new Vector3(xPosition, yPosition, zPosition);
-        GameObject noteGameObject = Instantiate(spawnPrefab, spawnPosition, transform.rotation, spawnParent.transform);
-        noteGameObject.transform.Rotate(Vector3.back, 90);
+        GameObject spawnPrefab = GetPrefab(note.NoteType);
+        GameObject noteGameObject = Instantiate(spawnPrefab, spawnPosition, spawnPrefab.transform.rotation);
         noteGameObject.name = $"Note {note.PositionInSteps} {note.NoteType}";
 
         NoteController controller = noteGameObject.GetComponent<NoteController>();
@@ -34,6 +46,41 @@ public class NoteSpawner : MonoBehaviour
         controller.noteTimeInSeconds = noteTimeInSeconds;
         controller.startAudioTimeInSeconds = startAudioTimeInSeconds;
         controller.noteType = note.NoteType;
+    }
+
+    private GameObject GetPrefab(int noteType)
+    {
+        switch (noteType)
+        {
+            // Kick drum
+            case 0:
+                return kickDrumPrefab;
+
+            // Snare drum
+            case 1:
+                return snareDrumPrefab;
+
+            // Hi-hat
+            case 2:
+                return closedHiHatPrefab;
+
+            // Tom 1
+            case 3:
+                return tomDrumPrefab;
+                //return openHiHatPrefab;
+
+            // Tom 2
+            case 4:
+                return tomDrumPrefab;
+                //return rideCymbalPrefab;
+
+            // Crash
+            case 5:
+                return crashCymbalPrefab;
+
+            default:
+                throw new Exception($"Unknown note type: {noteType}");
+        }
     }
 
     private int GetLanePosition(int noteType)
@@ -63,10 +110,6 @@ public class NoteSpawner : MonoBehaviour
             // Crash
             case 5:
                 return 6;
-
-            // Fake (marker)
-            case -1:
-                return -6;
 
             default:
                 throw new Exception($"Unknown note type: {noteType}");
