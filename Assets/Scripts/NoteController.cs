@@ -10,7 +10,7 @@ public class NoteController : MonoBehaviour
     private float speed = 20;
 
     [SerializeField]
-    private double destroyDelayInSeconds = 2;
+    private float destroyDelayInSeconds = 2;
 
     public double noteTimeInSeconds;
     public double startAudioTimeInSeconds;
@@ -23,11 +23,23 @@ public class NoteController : MonoBehaviour
 
     public bool InTargetZone { get; private set; }
 
+    private double enterTargetZoneTimeInSeconds;
+    private double exitTargetZoneTimeInSeconds;
+
     // Start is called before the first frame update
     void Start()
     {
         particleSystem = GetComponentInChildren<ParticleSystem>();
+        if (particleSystem == null)
+        {
+            throw new Exception("No ParticleSystem component found ");
+        }
+
         inputController = GameObject.FindGameObjectWithTag("InputManager").GetComponent<InputController>();
+        if (inputController == null)
+        {
+            throw new Exception("No InputController component found");
+        }
 
         UpdatePosition();
     }
@@ -54,14 +66,23 @@ public class NoteController : MonoBehaviour
 
     public void OnTargetZoneEnter()
     {
+        enterTargetZoneTimeInSeconds = Time.time;
         InTargetZone = true;
         CheckNoteHit();
     }
 
     public void OnTargetZoneExit()
     {
+        exitTargetZoneTimeInSeconds = Time.time;
+        Debug.Log("Time in target zone = " + (exitTargetZoneTimeInSeconds - enterTargetZoneTimeInSeconds));
+
         InTargetZone = false;
-        Destroy(gameObject, (float)destroyDelayInSeconds);
+        Invoke(nameof(DestroyNote), destroyDelayInSeconds);
+    }
+
+    private void DestroyNote()
+    {
+        GetComponentInChildren<MeshRenderer>().enabled = false;
     }
 
     private void CheckNoteHit()
@@ -74,10 +95,7 @@ public class NoteController : MonoBehaviour
 
     public void OnNoteHit()
     {
-        // Hide the note
-        GetComponent<MeshRenderer>().enabled = false;
-
-        // Play the explosion
         particleSystem.Play();
+        DestroyNote();
     }
 }

@@ -27,7 +27,10 @@ public class NoteSpawner : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        if (spawnParent == null)
+        {
+            throw new Exception("No spawn parent present");
+        }
     }
 
     public void SpawnNote(Note note, double noteTimeInSeconds, double startAudioTimeInSeconds)
@@ -38,7 +41,7 @@ public class NoteSpawner : MonoBehaviour
 
         Vector3 spawnPosition = new Vector3(xPosition, yPosition, zPosition);
         GameObject spawnPrefab = GetPrefab(note.NoteType);
-        GameObject noteGameObject = Instantiate(spawnPrefab, spawnPosition, spawnPrefab.transform.rotation);
+        GameObject noteGameObject = Instantiate(spawnPrefab, spawnPosition, spawnPrefab.transform.rotation, spawnParent.transform);
         noteGameObject.name = $"Note {note.PositionInSteps} {note.NoteType}";
 
         NoteController controller = noteGameObject.GetComponent<NoteController>();

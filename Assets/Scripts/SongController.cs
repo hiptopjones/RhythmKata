@@ -16,7 +16,7 @@ public class SongController : MonoBehaviour
     private double calibrationOffsetTimeInSeconds = 0.58;
 
     [SerializeField]
-    private double hitThresholdInSeconds = 0.2;
+    private double hitThresholdInSeconds = 0.05;
 
     [SerializeField]
     private GameObject spawnParent;
@@ -97,6 +97,7 @@ public class SongController : MonoBehaviour
                     // Inside the target zone, so notify the note if it was previously outside
                     if (!noteController.InTargetZone)
                     {
+                        Debug.Log("Enter target zone: " + noteController.name);
                         noteController.OnTargetZoneEnter();
                     }
                 }
@@ -105,6 +106,7 @@ public class SongController : MonoBehaviour
                     // Outside the target zone, so notify the note if it was previously inside
                     if (noteController.InTargetZone)
                     {
+                        Debug.Log("Leave target zone: " + noteController.name);
                         noteController.OnTargetZoneExit();
                     }
                 }
