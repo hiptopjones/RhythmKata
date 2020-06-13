@@ -75,40 +75,26 @@ public class SongController : MonoBehaviour
             noteSpawner.SpawnNote(note, calibratedNoteTimeInSeconds, startAudioTimeInSeconds);
         }
 
-        bool calibrationTest = false;
-        if (calibrationTest)
+        NoteController[] noteControllers = spawnParent.GetComponentsInChildren<NoteController>();
+        foreach (NoteController noteController in noteControllers)
         {
-            // Add fake notes on space bar hits to allow testing the A/V calibration
-            if (Input.GetKeyDown(KeyCode.Space))
+            double noteOffsetInSeconds = Math.Abs(currentPlaybackTimeInSeconds - noteController.noteTimeInSeconds);
+            if (noteOffsetInSeconds < hitThresholdInSeconds)
             {
-                Note fakeNote = new Note(songChart.GetPositionFromTime(currentPlaybackTimeInSeconds), -1, 0);
-                double noteTimeInSeconds = songChart.GetTimeFromPosition(fakeNote.PositionInSteps);
-                noteSpawner.SpawnNote(fakeNote, noteTimeInSeconds, startAudioTimeInSeconds);
-            }
-        }
-        else
-        {
-            NoteController[] noteControllers = spawnParent.GetComponentsInChildren<NoteController>();
-            foreach (NoteController noteController in noteControllers)
-            {
-                double noteOffsetInSeconds = Math.Abs(currentPlaybackTimeInSeconds - noteController.noteTimeInSeconds);
-                if (noteOffsetInSeconds < hitThresholdInSeconds)
+                // Inside the target zone, so notify the note if it was previously outside
+                if (!noteController.InTargetZone)
                 {
-                    // Inside the target zone, so notify the note if it was previously outside
-                    if (!noteController.InTargetZone)
-                    {
-                        Debug.Log("Enter target zone: " + noteController.name);
-                        noteController.OnTargetZoneEnter();
-                    }
+                    Debug.Log("Enter target zone: " + noteController.name);
+                    noteController.OnTargetZoneEnter();
                 }
-                else
+            }
+            else
+            {
+                // Outside the target zone, so notify the note if it was previously inside
+                if (noteController.InTargetZone)
                 {
-                    // Outside the target zone, so notify the note if it was previously inside
-                    if (noteController.InTargetZone)
-                    {
-                        Debug.Log("Leave target zone: " + noteController.name);
-                        noteController.OnTargetZoneExit();
-                    }
+                    Debug.Log("Leave target zone: " + noteController.name);
+                    noteController.OnTargetZoneExit();
                 }
             }
         }

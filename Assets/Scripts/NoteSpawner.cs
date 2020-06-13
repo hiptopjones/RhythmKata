@@ -36,86 +36,84 @@ public class NoteSpawner : MonoBehaviour
     public void SpawnNote(Note note, double noteTimeInSeconds, double startAudioTimeInSeconds)
     {
         float xPosition = 0; // Note will work this out
-        float yPosition = GetLanePosition(note.NoteType);
+        float yPosition = GetLanePosition(note.MidiNote);
         float zPosition = transform.position.z;
 
         Vector3 spawnPosition = new Vector3(xPosition, yPosition, zPosition);
-        GameObject spawnPrefab = GetPrefab(note.NoteType);
+        GameObject spawnPrefab = GetPrefab(note.MidiNote);
         GameObject noteGameObject = Instantiate(spawnPrefab, spawnPosition, spawnPrefab.transform.rotation, spawnParent.transform);
-        noteGameObject.name = $"Note {note.PositionInSteps} {note.NoteType}";
+        noteGameObject.name = $"Note {note.PositionInSteps} {note.MidiNote}";
 
         NoteController controller = noteGameObject.GetComponent<NoteController>();
         controller.positionInSteps = note.PositionInSteps;
         controller.noteTimeInSeconds = noteTimeInSeconds;
         controller.startAudioTimeInSeconds = startAudioTimeInSeconds;
-        controller.noteType = note.NoteType;
+        controller.midiNote = note.MidiNote;
     }
 
-    private GameObject GetPrefab(int noteType)
+    private GameObject GetPrefab(MidiNote midiNote)
     {
-        switch (noteType)
+        switch (midiNote)
         {
-            // Kick drum
-            case 0:
+            case MidiNote.BassDrum:
                 return kickDrumPrefab;
 
-            // Snare drum
-            case 1:
+            case MidiNote.SnareDrum:
                 return snareDrumPrefab;
 
-            // Hi-hat
-            case 2:
+            case MidiNote.ClosedHiHat:
                 return closedHiHatPrefab;
 
-            // Tom 1
-            case 3:
-                return tomDrumPrefab;
-                //return openHiHatPrefab;
+            case MidiNote.OpenHiHat:
+                return openHiHatPrefab;
 
-            // Tom 2
-            case 4:
+            case MidiNote.HighTom:
+            case MidiNote.MediumTom:
+            case MidiNote.FloorTom:
                 return tomDrumPrefab;
-                //return rideCymbalPrefab;
 
-            // Crash
-            case 5:
+            case MidiNote.RideCymbal:
+                return rideCymbalPrefab;
+
+            case MidiNote.CrashCymbal:
                 return crashCymbalPrefab;
 
             default:
-                throw new Exception($"Unknown note type: {noteType}");
+                throw new Exception($"Unknown note type: {midiNote}");
         }
     }
 
-    private int GetLanePosition(int noteType)
+    private int GetLanePosition(MidiNote midiNote)
     {
-        switch (noteType)
+        switch (midiNote)
         {
-            // Kick drum
-            case 0:
+            case MidiNote.BassDrum:
                 return -3;
 
-            // Snare drum
-            case 1:
+            case MidiNote.SnareDrum:
                 return 1;
 
-            // Hi-hat
-            case 2:
+            case MidiNote.ClosedHiHat:
+            case MidiNote.OpenHiHat:
                 return 5;
 
-            // Tom 1
-            case 3:
+            case MidiNote.HighTom:
                 return 3;
 
-            // Tom 2
-            case 4:
+            case MidiNote.MediumTom:
                 return 2;
 
-            // Crash
-            case 5:
+            case MidiNote.FloorTom:
+                return -1;
+
+            case MidiNote.RideCymbal:
+                return 5;
+
+            case MidiNote.CrashCymbal:
                 return 6;
 
             default:
-                throw new Exception($"Unknown note type: {noteType}");
+                throw new Exception($"Unknown note type: {midiNote}");
         }
     }
 }

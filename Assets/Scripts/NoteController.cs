@@ -1,4 +1,5 @@
-﻿using MidiJack;
+﻿using Assets.Data;
+using MidiJack;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ public class NoteController : MonoBehaviour
     private ParticleSystem particleSystem;
     private InputController inputController;
 
-    public int noteType;
+    public MidiNote midiNote;
     public int positionInSteps;
 
     public bool InTargetZone { get; private set; }
@@ -87,7 +88,7 @@ public class NoteController : MonoBehaviour
 
     private void CheckNoteHit()
     {
-        if (inputController.IsInputCodeActive(noteType))
+        if (inputController.IsInputCodeActive(midiNote))
         {
             OnNoteHit();
         }

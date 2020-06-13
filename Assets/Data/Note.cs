@@ -2,12 +2,12 @@
 {
     public class Note : PositionElement
     {
-        public int NoteType { get; set; }
+        public MidiNote MidiNote { get; set; }
         public int Duration { get; set; }
 
-        public Note(int position, int noteType, int duration) : base(position)
+        public Note(int position, MidiNote midiNote, int duration) : base(position)
         {
-            NoteType = noteType;
+            MidiNote = midiNote;
             Duration = duration;
         }
     }

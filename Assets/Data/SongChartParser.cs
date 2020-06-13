@@ -250,7 +250,7 @@ namespace Assets.Data
                 throw new Exception($"Unable to parse note value: '{noteValue}'");
             }
 
-            int noteType = Convert.ToInt32(match.Groups["NoteType"].Value);
+            MidiNote noteType = (MidiNote)Convert.ToInt32(match.Groups["NoteType"].Value);
             int noteDuration = Convert.ToInt32(match.Groups["NoteDuration"].Value);
 
             Notes.Add(new Note(position, noteType, noteDuration));

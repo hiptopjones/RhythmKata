@@ -1,4 +1,5 @@
-﻿using MidiJack;
+﻿using Assets.Data;
+using MidiJack;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,8 +8,8 @@ using UnityEngine;
 public class InputController : MonoBehaviour
 {
     private ulong frameIndex = 0;
-    private Dictionary<int, ulong> noteOnToFrameIndex = new Dictionary<int, ulong>();
-    private Dictionary<int, ulong> noteOffToFrameIndex = new Dictionary<int, ulong>();
+    private Dictionary<MidiNote, ulong> noteOnToFrameIndex = new Dictionary<MidiNote, ulong>();
+    private Dictionary<MidiNote, ulong> noteOffToFrameIndex = new Dictionary<MidiNote, ulong>();
 
     // Start is called before the first frame update
     void Start()
@@ -24,61 +25,21 @@ public class InputController : MonoBehaviour
         frameIndex++;
     }
 
-    public bool IsInputCodeActive(int noteType)
+    public bool IsInputCodeActive(MidiNote midiNote)
     {
-        bool useMidiInput = true;
-        if (useMidiInput)
-        {
-            return IsMidiNoteActive(noteType);
-        }
-        else
-        {
-            return IsInputKeyDown(noteType);
-        }
+        return IsMidiNoteActive(midiNote);
     }
 
-    private bool IsMidiNoteActive(int noteType)
+    private bool IsMidiNoteActive(MidiNote midiNote)
     {
-        int midiNoteNumber;
-
-        switch (noteType)
-        {
-            case 0: // Bass drum
-                midiNoteNumber = 36;
-                break;
-
-            case 1: // Snare drum
-                midiNoteNumber = 38;
-                break;
-
-            case 2: // Hi-hat
-                midiNoteNumber = 42;
-                break;
-
-            case 3: // High Tom
-                midiNoteNumber = 48;
-                break;
-
-            case 4: // Medium Tom
-                midiNoteNumber = 45;
-                break;
-
-            case 5: // Crash cymbal
-                midiNoteNumber = 49;
-                break;
-
-            default:
-                throw new Exception($"Unrecognized note type: {noteType}");
-        }
-
         ulong noteOnFrameIndex;
-        if (!noteOnToFrameIndex.TryGetValue(midiNoteNumber, out noteOnFrameIndex))
+        if (!noteOnToFrameIndex.TryGetValue(midiNote, out noteOnFrameIndex))
         {
             return false;
         }
 
         ulong noteOffFrameIndex;
-        if (!noteOffToFrameIndex.TryGetValue(midiNoteNumber, out noteOffFrameIndex))
+        if (!noteOffToFrameIndex.TryGetValue(midiNote, out noteOffFrameIndex))
         {
             return true;
         }
@@ -105,41 +66,19 @@ public class InputController : MonoBehaviour
         return true;
     }
 
-    private bool IsInputKeyDown(int noteType)
-    {
-        KeyCode keyCode;
-
-        switch (noteType)
-        {
-            case 0:
-                keyCode = KeyCode.Space;
-                break;
-
-            case 1:
-                keyCode = KeyCode.LeftControl;
-                break;
-
-            case 2:
-                keyCode = KeyCode.RightControl;
-                break;
-
-            default:
-                keyCode = KeyCode.Escape;
-                break;
-        }
-
-        return Input.GetKeyDown(keyCode);
-    }
-
     void NoteOn(MidiChannel channel, int note, float velocity)
     {
-        Debug.Log($"{frameIndex} - NoteOn: {channel}, {note}, {velocity}");
-        noteOnToFrameIndex[note] = frameIndex;
+        MidiNote midiNote = (MidiNote)note;
+
+        Debug.Log($"{frameIndex} - NoteOn: {channel}, {midiNote} ({note}), {velocity}");
+        noteOnToFrameIndex[midiNote] = frameIndex;
     }
 
     private void NoteOff(MidiChannel channel, int note)
     {
-        Debug.Log($"{frameIndex} - NoteOff: {channel}, {note}");
-        noteOffToFrameIndex[note] = frameIndex;
+        MidiNote midiNote = (MidiNote)note;
+
+        Debug.Log($"{frameIndex} - NoteOff: {channel}, {midiNote} ({note})");
+        noteOffToFrameIndex[midiNote] = frameIndex;
     }
 }
