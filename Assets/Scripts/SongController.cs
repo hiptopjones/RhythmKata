@@ -6,17 +6,25 @@ using UnityEngine;
 
 public class SongController : MonoBehaviour
 {
+    public int CurrentScore { get; set; } = 0;
+    public int CurrentMultiplier { get; set; } = 1;
+    public TimeSpan CurrentSongTime { get; set; } = TimeSpan.FromSeconds(0);
+    public int CurrentSongProgress { get; set; } = 0;
+
     [SerializeField]
     private double startPlaybackDelayTimeInSeconds = 2;
 
     [SerializeField]
-    private double spawnAheadTimeInSeconds = 5;
+    private double spawnAheadTimeInSeconds = 2;
 
     [SerializeField]
     private double calibrationOffsetTimeInSeconds = 0.58;
 
     [SerializeField]
     private double hitThresholdInSeconds = 0.05;
+
+    [SerializeField]
+    private int noteHitScore = 100;
 
     [SerializeField]
     private GameObject spawnParent;
@@ -54,15 +62,11 @@ public class SongController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log($"Time: {Time.time} Delta Time: {Time.deltaTime} DSP Time: {AudioSettings.dspTime}");
-
         double currentAudioTimeInSeconds = AudioSettings.dspTime;
 
         double currentPlaybackTimeInSeconds = currentAudioTimeInSeconds - startAudioTimeInSeconds;
         double currentSpawnTimeInSeconds = currentPlaybackTimeInSeconds + spawnAheadTimeInSeconds;
         int currentSpawnPositionInSteps = songChart.GetPositionFromTime(currentSpawnTimeInSeconds);
-
-        //Debug.Log($"Playback Time: {currentPlaybackTimeInSeconds} Spawn Time: {currentSpawnTimeInSeconds} Spawn Position: {currentSpawnPositionInSteps}");
 
         // Spawn any notes that have come into range
         while (queuedNotes.Count > 0 && queuedNotes.Peek().PositionInSteps <= currentSpawnPositionInSteps)
@@ -71,8 +75,7 @@ public class SongController : MonoBehaviour
             double noteTimeInSeconds = songChart.GetTimeFromPosition(note.PositionInSteps);
             double calibratedNoteTimeInSeconds = noteTimeInSeconds + calibrationOffsetTimeInSeconds;
 
-            //Debug.Log($"Note Position: {note.PositionInSteps} Note Time: {noteTimeInSeconds} Calibrated Time: {calibratedNoteTimeInSeconds}");
-            noteSpawner.SpawnNote(note, calibratedNoteTimeInSeconds, startAudioTimeInSeconds);
+            noteSpawner.SpawnNote(note, calibratedNoteTimeInSeconds, startAudioTimeInSeconds, OnNoteHit);
         }
 
         NoteController[] noteControllers = spawnParent.GetComponentsInChildren<NoteController>();
@@ -98,6 +101,9 @@ public class SongController : MonoBehaviour
                 }
             }
         }
+
+        CurrentSongTime = TimeSpan.FromSeconds(currentPlaybackTimeInSeconds);
+        CurrentSongProgress = (int)((currentPlaybackTimeInSeconds / audioSource.clip.length) * 100);
     }
 
     public void StartSong()
@@ -105,5 +111,10 @@ public class SongController : MonoBehaviour
         initAudioTimeInSeconds = AudioSettings.dspTime;
         startAudioTimeInSeconds = initAudioTimeInSeconds + startPlaybackDelayTimeInSeconds;
         audioSource.PlayScheduled(startAudioTimeInSeconds);
+    }
+
+    private void OnNoteHit()
+    {
+        CurrentScore += noteHitScore;
     }
 }

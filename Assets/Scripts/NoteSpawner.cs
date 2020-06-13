@@ -33,7 +33,7 @@ public class NoteSpawner : MonoBehaviour
         }
     }
 
-    public void SpawnNote(Note note, double noteTimeInSeconds, double startAudioTimeInSeconds)
+    public void SpawnNote(Note note, double noteTimeInSeconds, double startAudioTimeInSeconds, Action onHitEvent)
     {
         float xPosition = 0; // Note will work this out
         float yPosition = GetLanePosition(note.MidiNote);
@@ -49,6 +49,8 @@ public class NoteSpawner : MonoBehaviour
         controller.noteTimeInSeconds = noteTimeInSeconds;
         controller.startAudioTimeInSeconds = startAudioTimeInSeconds;
         controller.midiNote = note.MidiNote;
+
+        controller.OnHitEvent = onHitEvent;
     }
 
     private GameObject GetPrefab(MidiNote midiNote)

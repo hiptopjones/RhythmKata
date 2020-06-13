@@ -27,6 +27,8 @@ public class NoteController : MonoBehaviour
     private double enterTargetZoneTimeInSeconds;
     private double exitTargetZoneTimeInSeconds;
 
+    public Action OnHitEvent;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -96,6 +98,11 @@ public class NoteController : MonoBehaviour
 
     public void OnNoteHit()
     {
+        if (OnHitEvent != null)
+        {
+            OnHitEvent();
+        }
+
         particleSystem.Play();
         DestroyNote();
     }
