@@ -109,7 +109,7 @@ public class NoteSpawner : MonoBehaviour
                 return -1;
 
             case MidiNote.RideCymbal:
-                return 5;
+                return 4;
 
             case MidiNote.CrashCymbal:
                 return 6;
