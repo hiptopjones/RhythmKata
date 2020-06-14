@@ -31,7 +31,7 @@ public class UIController : MonoBehaviour
 
         scoreText.text = "0";
         multiplierText.text = "x1";
-        songTimeText.text = "0:00";
+        songTimeText.text = "0:00.00";
         songProgressText.text = "0%";
     }
 
@@ -40,7 +40,7 @@ public class UIController : MonoBehaviour
     {
         scoreText.text = SongController.CurrentScore.ToString();
         multiplierText.text = "x" + SongController.CurrentMultiplier.ToString();
-        songTimeText.text = SongController.CurrentSongTime.ToString(@"m\:ss");
+        songTimeText.text = SongController.CurrentSongTime.ToString(@"m\:ss\.ff");
         songProgressText.text = SongController.CurrentSongProgress.ToString() + "%";
     }
 }
