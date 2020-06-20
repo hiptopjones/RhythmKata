@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class UIController : MonoBehaviour
+public class HudController : MonoBehaviour
 {
     [SerializeField]
     private Text scoreText;
@@ -26,7 +27,7 @@ public class UIController : MonoBehaviour
         SongController = GetComponent<SongController>();
         if (SongController == null)
         {
-            throw new Exception("Unable to find a SongController component");
+            throw new Exception($"Unable to find a {nameof(SongController)} component");
         }
 
         scoreText.text = "0";

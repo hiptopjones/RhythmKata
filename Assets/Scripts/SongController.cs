@@ -32,6 +32,9 @@ public class SongController : MonoBehaviour
     [SerializeField]
     private TextAsset songChartTextAsset;
 
+    [SerializeField]
+    private GameObject endScreen;
+
     private NoteSpawner noteSpawner;
     private AudioSource audioSource;
 
@@ -39,12 +42,29 @@ public class SongController : MonoBehaviour
     private Queue<Note> queuedNotes;
     private double initAudioTimeInSeconds;
     private double startAudioTimeInSeconds;
+    private double previousAudioTimeInSeconds;
+
+    private bool isPaused;
+    private bool isComplete;
 
     // Start is called before the first frame update
     void Start()
     {
+        // Ensure any lingering pause state is cleared
+        AudioListener.pause = false;
+        Time.timeScale = 1;
+
         audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            throw new Exception($"Unable to find {nameof(AudioSource)} component");
+        }
+
         noteSpawner = GetComponent<NoteSpawner>();
+        if (noteSpawner == null)
+        {
+            throw new Exception($"Unable to find {nameof(NoteSpawner)} component");
+        }
 
         SongChartParser parser = new SongChartParser(songChartTextAsset.text);
         songChart = parser.ParseChart();
@@ -62,9 +82,52 @@ public class SongController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        double currentAudioTimeInSeconds = AudioSettings.dspTime;
+        // Check pause state
+        if (Time.timeScale == 0)
+        {
+            if (!isPaused)
+            {
+                isPaused = true;
+                AudioListener.pause = true;
+            }
 
+            return;
+        }
+        else
+        {
+            if (isPaused)
+            {
+                isPaused = false;
+                AudioListener.pause = false;
+            }
+        }
+
+        // Check if audio source is finished
+        if (audioSource.time >= audioSource.clip.length)
+        {
+            isComplete = true;
+            endScreen.SetActive(true);
+            return;
+        }
+
+        // DSP time may remain the same over multiple calls to Update(), so this code tweens it
+        double currentAudioTimeInSeconds = AudioSettings.dspTime;
+        if (currentAudioTimeInSeconds == previousAudioTimeInSeconds)
+        {
+            currentAudioTimeInSeconds += Time.unscaledDeltaTime;
+        }
+
+        previousAudioTimeInSeconds = currentAudioTimeInSeconds;
+
+        // Check if we have played the whole clip
         double currentPlaybackTimeInSeconds = currentAudioTimeInSeconds - startAudioTimeInSeconds;
+        if (currentPlaybackTimeInSeconds > audioSource.clip.length)
+        {
+            isComplete = true;
+            endScreen.SetActive(true);
+            return;
+        }
+
         double currentSpawnTimeInSeconds = currentPlaybackTimeInSeconds + spawnAheadTimeInSeconds;
         int currentSpawnPositionInSteps = songChart.GetPositionFromTime(currentSpawnTimeInSeconds);
 
@@ -102,8 +165,11 @@ public class SongController : MonoBehaviour
             }
         }
 
-        CurrentSongTime = TimeSpan.FromSeconds(currentPlaybackTimeInSeconds);
-        CurrentSongProgress = (int)((currentPlaybackTimeInSeconds / audioSource.clip.length) * 100);
+        if (currentPlaybackTimeInSeconds >= 0)
+        {
+            CurrentSongTime = TimeSpan.FromSeconds(currentPlaybackTimeInSeconds);
+            CurrentSongProgress = (int)((currentPlaybackTimeInSeconds / audioSource.clip.length) * 100);
+        }
     }
 
     public void StartSong()

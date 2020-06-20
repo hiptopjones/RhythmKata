@@ -15,6 +15,7 @@ public class NoteController : MonoBehaviour
 
     public double noteTimeInSeconds;
     public double startAudioTimeInSeconds;
+    public double previousAudioTimeInSeconds;
 
     private ParticleSystem particleSystem;
     private InputController inputController;
@@ -23,6 +24,7 @@ public class NoteController : MonoBehaviour
     public int positionInSteps;
 
     public bool InTargetZone { get; private set; }
+    private int NumFramesInTargetZone { get; set; }
 
     private double enterTargetZoneTimeInSeconds;
     private double exitTargetZoneTimeInSeconds;
@@ -35,13 +37,14 @@ public class NoteController : MonoBehaviour
         particleSystem = GetComponentInChildren<ParticleSystem>();
         if (particleSystem == null)
         {
-            throw new Exception("No ParticleSystem component found ");
+            throw new Exception($"Unable to find child {nameof(ParticleSystem)} component");
         }
 
         inputController = GameObject.FindGameObjectWithTag("InputManager").GetComponent<InputController>();
         if (inputController == null)
         {
-            throw new Exception("No InputController component found");
+            throw new Exception($"Unable to find InputManager tagged {nameof(InputController)} component");
+
         }
 
         UpdatePosition();
@@ -50,8 +53,14 @@ public class NoteController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Time.timeScale == 0)
+        {
+            return;
+        }
+
         if (InTargetZone)
         {
+            NumFramesInTargetZone++;
             CheckNoteHit();
         }
 
@@ -60,11 +69,20 @@ public class NoteController : MonoBehaviour
 
     private void UpdatePosition()
     {
+        // DSP time may remain the same over multiple calls to Update(), so this code tweens it
         double currentAudioTimeInSeconds = AudioSettings.dspTime;
+        if (currentAudioTimeInSeconds == previousAudioTimeInSeconds)
+        {
+            currentAudioTimeInSeconds += Time.unscaledDeltaTime;
+        }
+
+        previousAudioTimeInSeconds = currentAudioTimeInSeconds;
+
         double currentPlaybackTimeInSeconds = currentAudioTimeInSeconds - startAudioTimeInSeconds;
         double offsetTimeInSeconds = currentPlaybackTimeInSeconds - noteTimeInSeconds;
 
         transform.position = new Vector3((float)(-speed * offsetTimeInSeconds), transform.position.y, transform.position.z);
+
     }
 
     public void OnTargetZoneEnter()
@@ -78,6 +96,7 @@ public class NoteController : MonoBehaviour
     {
         exitTargetZoneTimeInSeconds = Time.time;
         Debug.Log("Time in target zone = " + (exitTargetZoneTimeInSeconds - enterTargetZoneTimeInSeconds));
+        Debug.Log("Frames in target zone = " + NumFramesInTargetZone);
 
         InTargetZone = false;
         Invoke(nameof(DestroyNote), destroyDelayInSeconds);
@@ -98,10 +117,7 @@ public class NoteController : MonoBehaviour
 
     public void OnNoteHit()
     {
-        if (OnHitEvent != null)
-        {
-            OnHitEvent();
-        }
+        OnHitEvent?.Invoke();
 
         particleSystem.Play();
         DestroyNote();
